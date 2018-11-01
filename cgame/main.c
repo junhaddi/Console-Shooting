@@ -11,10 +11,18 @@
 #define YELLOW 14
 #define WHITE 15
 
+//	TODO
+#define GAME_WIDTH 30
+#define GAME_HEIGHT 30
+
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
 #include <Windows.h>
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	UTIL
+px = 30;
+py = 30;
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	UTIL
 int key;
@@ -26,40 +34,57 @@ void gotoxy(int x, int y) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
-void setColor(unsigned short text)
-{
+void setColor(unsigned short text) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text);
 }
 
-
-
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	GAME
-void init() {
-	setColor(BLUE);
+void playerClear() {
+	gotoxy(px, py);
+	printf(" ");
 }
 
-void update() {
+void playerMov() {
 	if (kbhit()) {
 		key = getch();
 		switch (key) {
-			case LEFT:
-				printf("LEFT");
-				break;
-			case RIGHT:
-				printf("RIGHT");
-				break;
-			case UP:
-				printf("UP");
-				break;
-			case DOWN:
-				printf("DOWN");
-				break;
+		case LEFT:
+			playerClear();
+			px--;
+			break;
+		case RIGHT:
+			playerClear();
+			px++;
+			break;
+		case UP:
+			playerClear();
+			py--;
+			break;
+		case DOWN:
+			playerClear();
+			py++;
+			break;
 		}
 	}
 }
 
+void playerRender() {
+	setColor(YELLOW);
+	gotoxy(px, py);
+	printf("@");
+}
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	GAME
+void init() {
+	setColor(BLUE);
+	//system("mode con: lines=40");
+}
+
+void update() {
+	playerMov();
+}
+
 void render() {
-	system("cls");
+	playerRender();
 }
 
 void free() {

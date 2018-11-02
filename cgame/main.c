@@ -5,7 +5,7 @@
 #include <Windows.h>
 
 #define GAME_WIDTH 80
-#define GAME_HEIGHT 40
+#define GAME_HEIGHT 34
 
 #define LEFT 75
 #define RIGHT 77
@@ -57,7 +57,7 @@ void setColor(unsigned short text) {
 }
 
 //==============================================
-//	FUNC
+//	INV
 //==============================================	
 //	PLAYER
 int px = GAME_WIDTH / 2;
@@ -71,6 +71,59 @@ struct {
 	BOOL isExist;
 	int x, y, dir;
 } Bullet[MAXBULLET];
+
+//	UI
+void ui() {
+	//	FRAME
+	for (int i = 0; i < GAME_WIDTH; i++) {
+		setColor(WHITE);
+		gotoxy(i, GAME_HEIGHT);
+		printf("=");
+	}
+
+	//	ICO
+	setColor(WHITE);
+	gotoxy(2, GAME_HEIGHT + 2);
+	printf("=");
+	gotoxy(3, GAME_HEIGHT + 2);
+	printf("=");
+	gotoxy(4, GAME_HEIGHT + 2);
+	printf("=");
+	gotoxy(5, GAME_HEIGHT + 2);
+	printf("=");
+
+	gotoxy(1, GAME_HEIGHT + 3);
+	printf("=");
+	setColor(RED);
+	gotoxy(2, GAME_HEIGHT + 3);
+	printf("=");
+	setColor(WHITE);
+	gotoxy(3, GAME_HEIGHT + 3);
+	printf("=");
+	gotoxy(4, GAME_HEIGHT + 3);
+	printf("=");
+	setColor(RED);
+	gotoxy(5, GAME_HEIGHT + 3);
+	printf("=");
+	setColor(WHITE);
+	gotoxy(6, GAME_HEIGHT + 3);
+	printf("=");
+
+	gotoxy(3, GAME_HEIGHT + 4);
+	printf("=");
+	gotoxy(4, GAME_HEIGHT + 4);
+	printf("=");
+
+	//	HP
+	for (int i = 0; i < 3; i++) {
+		for (int j = 9; j < GAME_WIDTH - 1; j++) {
+			setColor(GREEN);
+			gotoxy(j, GAME_HEIGHT + 2 + i);
+			printf("#");
+		}
+		printf("\n");
+	}
+}
 
 //	BULLET
 void bulletClear(int i) {
@@ -163,6 +216,7 @@ void init() {
 	//setcursortype(NOCURSOR);
 	system("mode con:cols=80 lines=40");
 	//randomize();
+	ui();
 }
 
 void render() {

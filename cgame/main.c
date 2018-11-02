@@ -1,5 +1,11 @@
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <Windows.h>
+
 #define GAME_WIDTH 80
-#define GAME_HEIGHT 24
+#define GAME_HEIGHT 40
 
 #define LEFT 75
 #define RIGHT 77
@@ -8,44 +14,37 @@
 
 #define ESC 27
 #define EXTENDASCII -32
+#define MAXBULLET 3
 
-#define BLUE 9
-#define GREEN 10
-#define SKY 11
-#define RED 12
-#define PURPLE 13
-#define YELLOW 14
-#define WHITE 15
+enum {
+	BLACK,
+	DARK_BLUE,
+	DARK_GREEN,
+	DARK_SKYBLUE,
+	DARK_RED,
+	DARK_VOILET,
+	DAKR_YELLOW,
+	GRAY,
+	DARK_GRAY,
+	BLUE,
+	GREEN,
+	SKYBLUE,
+	RED,
+	VIOLET,
+	YELLOW,
+	WHITE,
+};
 
-#include <stdio.h>
-#include <conio.h>
-#include <stdlib.h>
-#include <Windows.h>
+enum {
+	EAST,
+	WEST,
+	SOUTH,
+	NORTH
+};
 
 //==============================================
 //	UTIL
 //==============================================
-//	PLAYER
-int px = GAME_WIDTH / 2;
-int py = GAME_HEIGHT / 2;
-
-//	BULLET
-int bx = -1, by = -1;
-enum dir {
-	East = 0,
-	West,
-	South,
-	North
-};
-struct {
-	BOOL isExist;
-	int x, y, dir;
-} Bullet;
-
-//==============================================
-//	FUNC
-//==============================================	
-//	INV
 void gotoxy(int x, int y) {
 	COORD Pos;
 	Pos.X = x;
@@ -57,11 +56,47 @@ void setColor(unsigned short text) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text);
 }
 
-// CREATE
-void bulletCreate() {
-	Bullet.x = px;
-	Bullet.y = py;
-	Bullet.isExist = TRUE;
+//==============================================
+//	FUNC
+//==============================================	
+//	PLAYER
+int px = GAME_WIDTH / 2;
+int py = GAME_HEIGHT / 2;
+
+//	BULLET
+int bx = -1, by = -1;
+int mx = -1, my;
+
+struct {
+	BOOL isExist;
+	int x, y, dir;
+} Bullet[MAXBULLET];
+
+//	BULLET
+void bulletClear(int i) {
+	gotoxy(Bullet[i].x, Bullet[i].y);
+	printf(" ");
+}
+
+void bulletRender(int i) {
+	setColor(RED);
+	gotoxy(Bullet[i].x, Bullet[i].y);
+	printf("+");
+}
+
+void bulletMove() {
+	for (int i = 0; i < MAXBULLET; i++) {
+		if (Bullet[i].isExist == TRUE) {
+			bulletClear(i);
+			if (Bullet[i].y <= 0 || Bullet[i].x >= GAME_WIDTH || Bullet[i].y >= GAME_HEIGHT || Bullet[i].x <= 0) {
+				Bullet[i].isExist = FALSE;
+			}
+			else {
+				Bullet[i].y--;
+				bulletRender(i);
+			}
+		}
+	}
 }
 
 //	PLAYER
@@ -70,142 +105,77 @@ void playerClear() {
 	printf(" ");
 }
 
-void playerAction() {
-	if (kbhit()) {
-		int key = getch();
-		
-		//	MOVE
-		switch (key) {
-		case 'a':
-		case 'A':
-			if (px > 1) {
-				playerClear();
-				px--;
-			}
-			break;
-		case 'd':
-		case 'D':
-			if (px < GAME_WIDTH) {
-				playerClear();
-				px++;
-			}
-			break;
-		case 'w':
-		case 'W':
-			if (py > 1) {
-				playerClear();
-				py--;
-			}
-			break;
-		case 's':
-		case 'S':
-			if (py < GAME_HEIGHT) {
-				playerClear();
-				py++;
-			}
-			break;
-
-		//	SHOOT
-		case LEFT:
-			bulletCreate();
-			Bullet.dir = East;
-			break;
-		case RIGHT:
-			bulletCreate();
-			Bullet.dir = West;
-			break;
-		case UP:
-			bulletCreate();
-			Bullet.dir = North;
-			break;
-		case DOWN:
-			bulletCreate();
-			Bullet.dir = South;
-			break;
-
-		//	EXIT
-		case ESC:
-			exit(0);
-		}
-	}
-}
-
 void playerRender() {
 	setColor(YELLOW);
 	gotoxy(px, py);
 	printf("@");
 }
 
-//	BULLET
-void bulletClear() {
-	gotoxy(Bullet.x, Bullet.y);
-	printf(" ");
-}
+void playerAction() {
+	if (GetAsyncKeyState(VK_LEFT) < 0 && px > 0) {
+		playerClear();
+		px--;
+		playerRender();
+	}
+	if (GetAsyncKeyState(VK_RIGHT) < 0 && px < GAME_WIDTH - 1) {
+		playerClear();
+		px++;
+		playerRender();
+	}
+	if (GetAsyncKeyState(VK_UP) < 0 && py > 0) {
+		playerClear();
+		py--;
+		playerRender();
+	}
+	if (GetAsyncKeyState(VK_DOWN) < 0 && py < GAME_HEIGHT - 1) {
+		playerClear();
+		py++;
+		playerRender();
+	}
 
-void bulletMove() {
-	if (Bullet.isExist == TRUE) {
-		bulletClear();
-
-		if (Bullet.x <= 1 || Bullet.x >= GAME_WIDTH || Bullet.y <= 1 || Bullet.y >= GAME_HEIGHT) {
-			Bullet.isExist = FALSE;
-		}
-		else {
-			switch (Bullet.dir) {
-			case East:
-				Bullet.x--;
-				break;
-			case West:
-				Bullet.x++;
-				break;
-			case South:
-				Bullet.y++;
-				break;
-			case North:
-				Bullet.y--;
-				break;
+	if (kbhit()) {
+		int ch = getch();
+		switch (ch) {
+			int i;
+		case ' ':
+			for (i = 0; i < MAXBULLET && Bullet[i].isExist == TRUE; i++) { ; }
+			if (i != MAXBULLET) {
+				Bullet[i].x = px;
+				Bullet[i].y = py;
+				Bullet[i].isExist = TRUE;
 			}
+			break;
+		case ESC:
+			exit(0);
 		}
 	}
 }
 
-void bulletRender() {
-	//if (Bullet.isExist == TRUE) {
-		setColor(RED);
-		gotoxy(Bullet.x, Bullet.y);
-		printf("+");
-	//}
-}
-
 //==============================================
-//	GAME
+//	MAIN
 //==============================================	
-void init() {
-	setColor(BLUE);
-	//system("mode con: lines=40");
-}
-
 void update() {
 	playerAction();
 	bulletMove();
 }
 
-void render() {
-	playerRender();
-	bulletRender();
+void init() {
+	//setcursortype(NOCURSOR);
+	system("mode con:cols=80 lines=40");
+	//randomize();
 }
 
-void free() {
-
+void render() {
+	playerRender();
 }
 
 int main() {
 	init();
-
 	for (;;) {
 		update();
 		render();
+		Sleep(30);
 	}
-	free();
-
+	getch();
 	return 0;
 }

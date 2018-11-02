@@ -56,6 +56,28 @@ void setColor(unsigned short text) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text);
 }
 
+typedef enum { NOCURSOR, SOLIDCURSOR, NORMALCURSOR } CURSOR_TYPE;
+void setcursortype(CURSOR_TYPE c)
+{
+	CONSOLE_CURSOR_INFO CurInfo;
+	switch (c)
+	{
+	case NOCURSOR:
+		CurInfo.dwSize = 1;
+		CurInfo.bVisible = FALSE;
+		break;
+	case SOLIDCURSOR:
+		CurInfo.dwSize = 100;
+		CurInfo.bVisible = TRUE;
+		break;
+	case NORMALCURSOR:
+		CurInfo.dwSize = 20;
+		CurInfo.bVisible = TRUE;
+		break;
+	}
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &CurInfo);
+}
+
 //==============================================
 //	INV
 //==============================================	
@@ -141,7 +163,7 @@ void bulletMove() {
 	for (int i = 0; i < MAXBULLET; i++) {
 		if (Bullet[i].isExist == TRUE) {
 			bulletClear(i);
-			if (Bullet[i].y <= 0 || Bullet[i].x >= GAME_WIDTH || Bullet[i].y >= GAME_HEIGHT || Bullet[i].x <= 0) {
+			if (Bullet[i].y <= 0) {
 				Bullet[i].isExist = FALSE;
 			}
 			else {
@@ -213,7 +235,7 @@ void update() {
 }
 
 void init() {
-	//setcursortype(NOCURSOR);
+	setcursortype(NOCURSOR);
 	system("mode con:cols=80 lines=40");
 	//randomize();
 	ui();
